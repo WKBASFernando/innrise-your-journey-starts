@@ -1,9 +1,13 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { CalendarIcon, MapPinIcon, UsersIcon } from "lucide-react";
+import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import heroImage from "@/assets/hero-hotel.jpg";
 
 const Hero = () => {
+  const { elementRef: titleRef, isVisible: titleVisible } = useScrollAnimation<HTMLHeadingElement>();
+  const { elementRef: searchRef, isVisible: searchVisible } = useScrollAnimation<HTMLDivElement>({ threshold: 0.2 });
+  
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
       {/* Background Image */}
@@ -19,18 +23,30 @@ const Hero = () => {
       {/* Content */}
       <div className="relative z-10 container mx-auto px-6 text-center">
         <div className="max-w-4xl mx-auto">
-          <h1 className="text-5xl md:text-7xl font-bold text-primary-foreground mb-6 leading-tight">
+          <h1 
+            ref={titleRef}
+            className={`text-5xl md:text-7xl font-bold text-primary-foreground mb-6 leading-tight transition-all duration-1000 ${
+              titleVisible ? 'animate-fade-in' : 'opacity-0 translate-y-8'
+            }`}
+          >
             Your Journey
             <span className="block bg-gradient-sunrise bg-clip-text text-transparent">
               Starts Here
             </span>
           </h1>
-          <p className="text-xl md:text-2xl text-primary-foreground/90 mb-12 max-w-2xl mx-auto leading-relaxed">
+          <p className={`text-xl md:text-2xl text-primary-foreground/90 mb-12 max-w-2xl mx-auto leading-relaxed transition-all duration-1000 delay-300 ${
+            titleVisible ? 'animate-fade-in' : 'opacity-0 translate-y-8'
+          }`}>
             Discover extraordinary hotels that rise with you. Experience luxury, comfort, and fresh beginnings at every destination.
           </p>
           
           {/* Search Bar */}
-          <div className="bg-gradient-card backdrop-blur-md rounded-2xl p-8 shadow-luxury mb-8 max-w-4xl mx-auto border border-border/50">
+          <div 
+            ref={searchRef}
+            className={`bg-gradient-card backdrop-blur-md rounded-2xl p-8 shadow-luxury mb-8 max-w-4xl mx-auto border border-border/50 transition-all duration-800 delay-600 ${
+              searchVisible ? 'animate-slide-up' : 'opacity-0 translate-y-12'
+            }`}
+          >
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <div className="relative">
                 <MapPinIcon className="absolute left-3 top-3 h-5 w-5 text-muted-foreground" />

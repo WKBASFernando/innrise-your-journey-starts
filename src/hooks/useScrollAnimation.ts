@@ -1,0 +1,97 @@
+import { useEffect, useRef, useState } from 'react';
+
+interface UseScrollAnimationOptions {
+  threshold?: number;
+  rootMargin?: string;
+  triggerOnce?: boolean;
+}
+
+export const useScrollAnimation = <T extends HTMLElement = HTMLDivElement>(options: UseScrollAnimationOptions = {}) => {
+  const {
+    threshold = 0.1,
+    rootMargin = '0px 0px -10% 0px',
+    triggerOnce = true,
+  } = options;
+
+  const [isVisible, setIsVisible] = useState(false);
+  const elementRef = useRef<T>(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+          if (triggerOnce && elementRef.current) {
+            observer.unobserve(elementRef.current);
+          }
+        } else if (!triggerOnce) {
+          setIsVisible(false);
+        }
+      },
+      {
+        threshold,
+        rootMargin,
+      }
+    );
+
+    const currentElement = elementRef.current;
+    if (currentElement) {
+      observer.observe(currentElement);
+    }
+
+    return () => {
+      if (currentElement) {
+        observer.unobserve(currentElement);
+      }
+    };
+  }, [threshold, rootMargin, triggerOnce]);
+
+  return { elementRef, isVisible };
+};
+
+export const useStaggeredAnimation = <T extends HTMLElement = HTMLDivElement>(itemCount: number, delay: number = 100) => {
+  const [visibleItems, setVisibleItems] = useState<boolean[]>(
+    new Array(itemCount).fill(false)
+  );
+  const containerRef = useRef<T>(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          // Trigger animations with stagger effect
+          for (let i = 0; i < itemCount; i++) {
+            setTimeout(() => {
+              setVisibleItems(prev => {
+                const newState = [...prev];
+                newState[i] = true;
+                return newState;
+              });
+            }, i * delay);
+          }
+          
+          if (containerRef.current) {
+            observer.unobserve(containerRef.current);
+          }
+        }
+      },
+      {
+        threshold: 0.1,
+        rootMargin: '0px 0px -10% 0px',
+      }
+    );
+
+    const currentContainer = containerRef.current;
+    if (currentContainer) {
+      observer.observe(currentContainer);
+    }
+
+    return () => {
+      if (currentContainer) {
+        observer.unobserve(currentContainer);
+      }
+    };
+  }, [itemCount, delay]);
+
+  return { containerRef, visibleItems };
+};

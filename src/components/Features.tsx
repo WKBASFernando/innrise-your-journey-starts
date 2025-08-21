@@ -1,5 +1,6 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { StarIcon, MapIcon, ShieldCheckIcon, HeartIcon, WifiIcon, CarIcon } from "lucide-react";
+import { useScrollAnimation, useStaggeredAnimation } from "@/hooks/useScrollAnimation";
 
 const features = [
   {
@@ -35,10 +36,18 @@ const features = [
 ];
 
 const Features = () => {
+  const { elementRef: headerRef, isVisible: headerVisible } = useScrollAnimation<HTMLDivElement>();
+  const { containerRef, visibleItems } = useStaggeredAnimation<HTMLDivElement>(features.length, 150);
+  
   return (
     <section className="py-20 bg-gradient-hero">
       <div className="container mx-auto px-6">
-        <div className="text-center mb-16">
+        <div 
+          ref={headerRef}
+          className={`text-center mb-16 transition-all duration-800 ${
+            headerVisible ? 'animate-fade-in' : 'opacity-0 translate-y-8'
+          }`}
+        >
           <h2 className="text-4xl md:text-5xl font-bold mb-6">
             Why Choose <span className="bg-gradient-sunrise bg-clip-text text-transparent">InnRise</span>
           </h2>
@@ -47,11 +56,14 @@ const Features = () => {
           </p>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div ref={containerRef} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {features.map((feature, index) => (
             <Card 
               key={index} 
-              className="bg-gradient-card border-border/50 hover:shadow-luxury transition-all duration-500 hover:-translate-y-2 backdrop-blur-sm group"
+              className={`bg-gradient-card border-border/50 hover:shadow-luxury transition-all duration-500 hover:-translate-y-2 backdrop-blur-sm group ${
+                visibleItems[index] ? 'animate-scale-in' : 'opacity-0 scale-90'
+              }`}
+              style={{ animationDelay: `${index * 150}ms` }}
             >
               <CardContent className="p-8 text-center">
                 <div className="w-16 h-16 mx-auto mb-6 bg-gradient-sunrise rounded-full flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
